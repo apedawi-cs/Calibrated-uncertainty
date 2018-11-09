@@ -8,9 +8,8 @@ Playing around with ideas from a few papers:
 ---------
 
 ### Results
-$
-x + y
-$
-
 ![Actual log density](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/logdensity_actual.png)
+Actual log density
+
 ![Estimated log density](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/logdensity_estimated.png)
+Estimated log density
