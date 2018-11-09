@@ -10,7 +10,7 @@ Playing around with ideas from a few papers:
 ### Results
 
 Data generating process:
-![Data generating process](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/dgp.png)
+![Data generating process](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/dgp.png | width=100)
 
 
 Actual log density:
