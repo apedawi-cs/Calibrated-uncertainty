@@ -230,7 +230,7 @@ with tf.Session() as session:
     plt.clim(-10, 0)
     plt.plot(x_train, y_train, 'r.')
     plt.tight_layout()
-    plt.savefig('logdensity_actual.png')
+    plt.savefig('logdensity_estimated.png')
     plt.close()
     #
     plt.figure(figsize=(14, 10))
@@ -241,5 +241,5 @@ with tf.Session() as session:
     plt.clim(-10, 0)
     plt.plot(x_train, y_train, 'r.')
     plt.tight_layout()
-    plt.savefig('logdensity_estimated.png')
+    plt.savefig('logdensity_actual.png')
     plt.close()
