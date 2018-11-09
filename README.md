@@ -5,6 +5,16 @@ Playing around with ideas from a few papers:
 
 [2] [Reliable Uncertainty Estimates in Deep Neural Networks using Noise Contrastive Priors](https://arxiv.org/pdf/1807.09289v2.pdf)
 
+To run, just use `python example.py`.
+
+### Required Python dependencies:
+```
+matplotlib==1.3.1
+numpy==1.14.5
+tensorflow==1.10.1
+tensorflow_probability
+```
+
 ---------
 
 ### Results
