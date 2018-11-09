@@ -8,8 +8,10 @@ Playing around with ideas from a few papers:
 ---------
 
 ### Results
-![Actual log density](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/logdensity_actual.png)
-Actual log density
+<img src="https://latex.codecogs.com/gif.latex?O_t=\text { Onset event at time bin } t " /> 
 
+Actual log density:
+![Actual log density](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/logdensity_actual.png)
+
+Estimated log density:
 ![Estimated log density](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/logdensity_estimated.png)
-Estimated log density
