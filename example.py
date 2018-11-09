@@ -6,7 +6,6 @@ nb_units_per_layer = 100
 nb_iterations = 10000
 batch_size = nb_observations
 
-import argparse
 from copy import copy
 import matplotlib.pyplot as plt
 import numpy as np
