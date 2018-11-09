@@ -8,7 +8,10 @@ Playing around with ideas from a few papers:
 ---------
 
 ### Results
-<img src="https://latex.codecogs.com/gif.latex?O_t=\text { Onset event at time bin } t " /> 
+
+Data generating process:
+![Data generating process](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/dgp.png)
+
 
 Actual log density:
 ![Actual log density](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/logdensity_actual.png)
