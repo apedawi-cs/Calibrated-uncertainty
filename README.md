@@ -10,8 +10,7 @@ Playing around with ideas from a few papers:
 ### Results
 
 Data generating process:
-![Data generating process](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/dgp.png | width=100)
-
+<img src="https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/dgp.png" alt="Data generating process" width="100">
 
 Actual log density:
 ![Actual log density](https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/logdensity_actual.png)
