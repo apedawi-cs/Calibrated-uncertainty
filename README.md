@@ -11,8 +11,8 @@ To run, just submit `python example.py` to the command line from the proper dire
 ```
 matplotlib==1.3.1
 numpy==1.14.5
-tensorflow==1.10.1
-tensorflow_probability
+tensorflow==1.12.0
+tensorflow_probability==0.5.0
 ```
 
 ---------
