@@ -198,11 +198,10 @@ def main(args):
     model.train(data_dict={'x': x_train, 'y': y_train}, opt=opt, nb_iterations=args.nb_iterations, batch_size=args.batch_size, bootstrap=args.bootstrap)
     # plot results
     with tf.Session() as session:
-        num = 100
         x_min, x_max = -7., 7.
         y_min, y_max = -5., 5.
-        x_span = np.linspace(x_min, x_max, num=num)
-        y_span = np.linspace(y_min, y_max, num=num)
+        x_span = np.linspace(x_min, x_max, 100)
+        y_span = np.linspace(y_min, y_max, 100)
         x_span, y_span = np.meshgrid(x_span, y_span)
         x_span, y_span = x_span.reshape(-1, 1), y_span.reshape(-1, 1)
         logpdf_true = np.squeeze(session.run(
