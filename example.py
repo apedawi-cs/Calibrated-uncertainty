@@ -1,13 +1,7 @@
-### inputs
-nb_observations = 1000
-nb_ensembles = 10
-nb_layers = 3
-nb_units_per_layer = 100
-nb_iterations = 10000
-batch_size = nb_observations
-
+import argparse
 from copy import copy
 import matplotlib.pyplot as plt
+from matplotlib import cm, ticker
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -107,8 +101,8 @@ class Model:
 
 # tensorflow model
 class Estimator:
-    def __init__(self, nb_ensembles, nb_layers, nb_units_per_layer, nce_scale=200., actnorm=True):
-        self.nb_ensembles = nb_ensembles
+    def __init__(self, nb_members, nb_layers, nb_units_per_layer, nce_scale=1., actnorm=True):
+        self.nb_members = nb_members
         self.nb_layers = nb_layers
         self.nb_units_per_layer = nb_units_per_layer
         self.nce_scale = nce_scale
@@ -140,9 +134,9 @@ class Estimator:
         reg_vars = reg_mean.weights + reg_logvar.weights
         # ood classifier
         ood_logit = Model(layers_ood_logit)
-        zz_logit = ood_logit(tf.concat([x, tfd.Normal(loc=x, scale=self.nce_scale).sample()], axis=0))
-        zz = tfd.Bernoulli(logits=zz_logit)
-        ood_loss = -tf.reduce_mean(zz.log_prob(tf.concat([tf.zeros_like(x), tf.ones_like(x)], axis=0)))
+        oo_logit = ood_logit(tf.concat([x, x + tf.random_normal(tf.shape(x), 0., self.nce_scale)], axis=0))
+        oo = tfd.Bernoulli(logits=oo_logit)
+        ood_loss = -tf.reduce_mean(oo.log_prob(tf.concat([tf.zeros_like(x), tf.ones_like(x)], axis=0)))
         ood_vars = ood_logit.weights
         return x, y, reg_mean, reg_logvar, reg_loss, reg_vars, ood_logit, ood_loss, ood_vars
     def train(self, data_dict, opt, nb_iterations, batch_size, bootstrap=False):
@@ -166,12 +160,12 @@ class Estimator:
                 if (i + 1) % 100 == 0:
                     print(msg.format(i + 1, nb_iterations, _loss))
             ood_prob = tf.nn.sigmoid(ood_logit.freeze(session)(self.x))
-            mix_probs = [ood_prob] + self.nb_ensembles * [(1. - ood_prob) * tf.ones_like(ood_prob) / self.nb_ensembles]
+            mix_probs = [ood_prob] + self.nb_members * [(1. - ood_prob) * tf.ones_like(ood_prob) / self.nb_members]
             self.cat = tfd.Categorical(probs=tf.concat(mix_probs, axis=1))
             print('--------')
-            msg = 'Training regression networks. Ensemble {}/{}. Iteration {}/{}. Model loss: {:.4f}.'
+            msg = 'Training regression networks. Ensemble member {}/{}. Iteration {}/{}. Model loss: {:.4f}.'
             train_op = opt.minimize(loss=reg_loss, var_list=reg_vars)
-            for m in range(self.nb_ensembles):
+            for m in range(self.nb_members):
                 if bootstrap:
                     boot = np.random.choice(range(nb_rows), nb_rows, replace=True).tolist()
                 else:
@@ -186,59 +180,70 @@ class Estimator:
                         {self.x: data_dict['x'][ind], self.y: data_dict['y'][ind]}
                     )
                     if (i + 1) % 100 == 0:
-                        print(msg.format(m + 1, self.nb_ensembles, i + 1, nb_iterations, _loss))
+                        print(msg.format(m + 1, self.nb_members, i + 1, nb_iterations, _loss))
                 self.components += [tfd.Normal(
                     loc=tf.squeeze(reg_mean.freeze(session)(self.x)),
                     scale=tf.squeeze(tf.exp(reg_logvar.freeze(session)(self.x) / 2.))
                 )]
             self.yy = tfd.Mixture(cat=self.cat, components=self.components)
 
-# simulate data
-dgp = DataGenerator()
-x_train, y_train, _, _ = dgp.simulate(nb_observations=nb_observations)
+# main
+def main(args):
+    # simulate data
+    dgp = DataGenerator()
+    x_train, y_train, _, _ = dgp.simulate(nb_observations=args.nb_observations)
+    # build tensorflow model and train
+    opt = tf.train.AdamOptimizer(learning_rate=1e-3)
+    model = Estimator(nb_members=args.nb_members, nb_layers=args.nb_layers, nb_units_per_layer=args.nb_units_per_layer, nce_scale=args.nce_scale, actnorm=args.actnorm)
+    model.train(data_dict={'x': x_train, 'y': y_train}, opt=opt, nb_iterations=args.nb_iterations, batch_size=args.batch_size, bootstrap=args.bootstrap)
+    # plot results
+    with tf.Session() as session:
+        num = 100
+        x_min, x_max = -7., 7.
+        y_min, y_max = -5., 5.
+        x_span = np.linspace(x_min, x_max, num=num)
+        y_span = np.linspace(y_min, y_max, num=num)
+        x_span, y_span = np.meshgrid(x_span, y_span)
+        x_span, y_span = x_span.reshape(-1, 1), y_span.reshape(-1, 1)
+        logpdf_true = np.squeeze(session.run(
+            dgp.yy.log_prob(dgp.y),
+            {dgp.x: x_span, dgp.y: y_span}
+        ))
+        logpdf_est = session.run(
+            model.yy.log_prob(tf.squeeze(model.y)),
+            {model.x: x_span, model.y: y_span}
+        )
+        x_span, y_span = np.squeeze(x_span), np.squeeze(y_span)
+        plt.figure(figsize=(28, 10))
+        plt.subplot(1, 2, 1)
+        plt.title('Actual log density surface')
+        plt.tripcolor(x_span, y_span, logpdf_true, shading='gouraud')
+        plt.plot(x_train, y_train, 'r.')
+        plt.xlim([x_min, x_max])
+        plt.ylim([y_min, y_max])
+        plt.clim(-10, 0)
+        plt.subplot(1, 2, 2)
+        plt.title('Estimated log density surface')
+        plt.tripcolor(x_span, y_span, logpdf_est, shading='gouraud')
+        plt.plot(x_train, y_train, 'r.')
+        plt.xlim([x_min, x_max])
+        plt.ylim([y_min, y_max])
+        plt.clim(-10, 0)
+        plt.tight_layout()
+        plt.savefig('log_density.png')
+        plt.close()
 
-# build tensorflow model and train
-opt = tf.train.AdamOptimizer(learning_rate=1e-3)
-model = Estimator(nb_ensembles=nb_ensembles, nb_layers=nb_layers, nb_units_per_layer=nb_units_per_layer, actnorm=True)
-model.train(data_dict={'x': x_train, 'y': y_train}, opt=opt, nb_iterations=nb_iterations, batch_size=batch_size, bootstrap=False)
-
-# plot results
-with tf.Session() as session:
-    num = 100
-    x_min, x_max = -7., 7.
-    y_min, y_max = -5., 5.
-    x_span = np.linspace(x_min, x_max, num=num)
-    y_span = np.linspace(y_min, y_max, num=num)
-    x_span, y_span = np.meshgrid(x_span, y_span)
-    x_span, y_span = x_span.reshape(-1, 1), y_span.reshape(-1, 1)
-    logpdf_est = session.run(
-        model.yy.log_prob(tf.squeeze(model.y)),
-        {model.x: x_span, model.y: y_span}
-    )
-    logpdf_true = np.squeeze(session.run(
-        dgp.yy.log_prob(dgp.y),
-        {dgp.x: x_span, dgp.y: y_span}
-    ))
-    x_span, y_span = np.squeeze(x_span), np.squeeze(y_span)
-    #
-    plt.figure(figsize=(14, 10))
-    plt.xlim([x_min, x_max])
-    plt.ylim([y_min, y_max])
-    plt.tripcolor(x_span, y_span, logpdf_est, shading='gouraud')
-    plt.colorbar()
-    plt.clim(-10, 0)
-    plt.plot(x_train, y_train, 'r.')
-    plt.tight_layout()
-    plt.savefig('logdensity_estimated.png')
-    plt.close()
-    #
-    plt.figure(figsize=(14, 10))
-    plt.xlim([x_min, x_max])
-    plt.ylim([y_min, y_max])
-    plt.tripcolor(x_span, y_span, logpdf_true, shading='gouraud')
-    plt.colorbar()
-    plt.clim(-10, 0)
-    plt.plot(x_train, y_train, 'r.')
-    plt.tight_layout()
-    plt.savefig('logdensity_actual.png')
-    plt.close()
+# set up argument parser
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--nb_observations', type=int, default=1000)
+    parser.add_argument('--nb_members', type=int, default=5)
+    parser.add_argument('--nb_layers', type=int, default=3)
+    parser.add_argument('--nb_units_per_layer', type=int, default=100)
+    parser.add_argument('--nce_scale', type=float, default=200.)
+    parser.add_argument('--actnorm', type=bool, default=True)
+    parser.add_argument('--nb_iterations', type=int, default=50000)
+    parser.add_argument('--batch_size', type=int, default=100)
+    parser.add_argument('--bootstrap', type=bool, default=False)
+    args = parser.parse_args()
+    main(args)
