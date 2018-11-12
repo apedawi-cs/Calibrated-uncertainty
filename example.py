@@ -193,8 +193,14 @@ def main(args):
     x_train, y_train, _, _ = dgp.simulate(nb_observations=args.nb_observations)
     # build tensorflow model and train
     opt = tf.train.AdamOptimizer(learning_rate=1e-3)
-    model = Estimator(nb_members=args.nb_members, nb_layers=args.nb_layers, nb_units_per_layer=args.nb_units_per_layer, nce_scale=args.nce_scale, actnorm=args.actnorm)
-    model.train(data_dict={'x': x_train, 'y': y_train}, opt=opt, nb_iterations=args.nb_iterations, batch_size=args.batch_size, bootstrap=args.bootstrap)
+    model = Estimator(
+        nb_members=args.nb_members, nb_layers=args.nb_layers, nb_units_per_layer=args.nb_units_per_layer,
+        nce_scale=args.nce_scale, actnorm=args.actnorm
+    )
+    model.train(
+        data_dict={'x': x_train, 'y': y_train}, opt=opt, nb_iterations=args.nb_iterations,
+        batch_size=args.batch_size, bootstrap=args.bootstrap
+    )
     # plot results
     with tf.Session() as session:
         x_min, x_max = -7., 7.
