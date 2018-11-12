@@ -17,7 +17,7 @@ tensorflow_probability==0.5.0
 
 ---------
 
-### Results
+### Results from toy experiment
 
 Data generating process:
 
