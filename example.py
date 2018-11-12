@@ -231,7 +231,7 @@ def main(args):
         plt.savefig('log_density.png')
         plt.close()
 
-# set up argument parser
+# argument parser
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--nb_observations', type=int, default=1000)
