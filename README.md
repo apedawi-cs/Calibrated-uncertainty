@@ -5,7 +5,7 @@ Playing around with ideas from a few papers:
 
 [2] [Reliable Uncertainty Estimates in Deep Neural Networks using Noise Contrastive Priors](https://arxiv.org/pdf/1807.09289v2.pdf)
 
-To run, just submit `python example.py` to the command line from the proper directory.
+Run with `python3 example.py`.
 
 ### Required Python 3.6.6 dependencies:
 ```
