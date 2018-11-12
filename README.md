@@ -23,10 +23,6 @@ Data generating process:
 
 <img src="https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/dgp.png" width="300">
 
-Actual log density:
+Actual vs. estimated log density surface:
 
-<img src="https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/logdensity_actual.png">
-
-Estimated log density:
-
-<img src="https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/logdensity_estimated.png">
+<img src="https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/log_density.png">
