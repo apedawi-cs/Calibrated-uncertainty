@@ -1,7 +1,6 @@
 import argparse
 from copy import copy
 import matplotlib.pyplot as plt
-from matplotlib import cm, ticker
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
