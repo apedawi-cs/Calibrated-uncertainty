@@ -19,10 +19,10 @@ tensorflow_probability==0.5.0
 
 ### Results from toy experiment
 
-Data generating process:
+#### Data generating process:
 
 <img src="https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/dgp.png" width="300">
 
-Actual vs. estimated log density surface:
+#### Actual vs. estimated log density surface:
 
 <img src="https://github.com/apedawi-cs/Calibrated-uncertainty/blob/master/log_density.png">
