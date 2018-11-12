@@ -7,10 +7,10 @@ Playing around with ideas from a few papers:
 
 To run, just submit `python example.py` to the command line from the proper directory.
 
-### Required Python dependencies:
+### Required Python 3.6.6 dependencies:
 ```
-matplotlib==1.3.1
-numpy==1.14.5
+matplotlib==3.0.0
+numpy==1.15.2
 tensorflow==1.12.0
 tensorflow_probability==0.5.0
 ```
